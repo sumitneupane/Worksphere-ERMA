@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ ticket.id }} - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li><a href="/admin/training">Training</a></li>
+                <li class="active"><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Ticket #{{ ticket.id }}: {{ ticket.subject }}</h1>
+                <a href="/admin/support" class="btn btn-secondary">Back</a>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="ticket-actions">
+                <form method="POST" action="/admin/support/view/{{ ticket.id }}" style="display:inline;">
+                    <input type="hidden" name="action" value="assign">
+                    <select name="assigned_to" class="form-control-inline">
+                        <option value="">Assign to...</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}" {% if ticket.assigned_to == user.id %}selected{% endif %}>{{ user.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+                </form>
+                
+                {% if ticket.status != 'closed' %}
+                <button onclick="document.getElementById('closeModal').style.display='block'" class="btn btn-sm btn-danger">Close Ticket</button>
+                {% else %}
+                <form method="POST" action="/admin/support/view/{{ ticket.id }}" style="display:inline;">
+                    <input type="hidden" name="action" value="reopen">
+                    <button type="submit" class="btn btn-sm btn-success">Reopen Ticket</button>
+                </form>
+                {% endif %}
+            </div>
+            
+            <div class="section">
+                <div class="ticket-details">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Created by:</label>
+                            <span>{{ ticket.creator_name }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Category:</label>
+                            <span>{{ ticket.category }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Priority:</label>
+                            <span class="badge badge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Status:</label>
+                            <span class="badge badge-{{ ticket.status }}">{{ ticket.status }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Assigned To:</label>
+                            <span>{{ ticket.assigned_name or 'Unassigned' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Created:</label>
+                            <span>{{ ticket.created_at }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-description">
+                        <h3>Description</h3>
+                        <p>{{ ticket.description }}</p>
+                    </div>
+                    
+                    {% if ticket.resolution %}
+                    <div class="ticket-resolution">
+                        <h3>Resolution</h3>
+                        <p>{{ ticket.resolution }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Conversation</h2>
+                <div class="ticket-conversation">
+                    {% for response in responses %}
+                    <div class="conversation-message">
+                        <div class="message-header">
+                            <strong>{{ response.responder_name }}</strong>
+                            <span class="message-role">({{ response.role }})</span>
+                            <span class="message-time">{{ response.created_at }}</span>
+                        </div>
+                        <div class="message-body">{{ response.message }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if ticket.status != 'closed' %}
+                <div class="add-response">
+                    <h3>Add Response</h3>
+                    <form method="POST" action="/admin/support/view/{{ ticket.id }}">
+                        <input type="hidden" name="action" value="respond">
+                        <div class="form-group">
+                            <textarea name="message" rows="4" placeholder="Type your response..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Response</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+    
+    <div id="closeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('closeModal').style.display='none'">&times;</span>
+            <h2>Close Ticket</h2>
+            <form method="POST" action="/admin/support/view/{{ ticket.id }}">
+                <input type="hidden" name="action" value="close">
+                <div class="form-group">
+                    <label for="resolution">Resolution Summary</label>
+                    <textarea id="resolution" name="resolution" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Close Ticket</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

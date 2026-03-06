@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li class="active"><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Reports & Analytics</h1>
+            </header>
+            
+            <div class="reports-grid">
+                <div class="section">
+                    <h2>Department Statistics</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Employees</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in dept_stats %}
+                            <tr>
+                                <td>{{ dept.name }}</td>
+                                <td>{{ dept.employee_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Leave Request Statistics</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in leave_stats %}
+                            <tr>
+                                <td><span class="badge badge-{{ stat.status }}">{{ stat.status }}</span></td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Training Progress</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in training_stats %}
+                            <tr>
+                                <td><span class="badge badge-{{ stat.status }}">{{ stat.status }}</span></td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Support Ticket Statistics</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in ticket_stats %}
+                            <tr>
+                                <td><span class="badge badge-{{ stat.status }}">{{ stat.status }}</span></td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

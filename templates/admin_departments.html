@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li class="active"><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Department Management</h1>
+                <button onclick="document.getElementById('addDeptModal').style.display='block'" class="btn btn-primary">Add Department</button>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Department Name</th>
+                            <th>Description</th>
+                            <th>Manager</th>
+                            <th>Employees</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td><strong>{{ dept.name }}</strong></td>
+                            <td>{{ dept.description or '—' }}</td>
+                            <td>{{ dept.manager_name or '—' }}</td>
+                            <td>{{ dept.employee_count }}</td>
+                            <td>
+                                <button onclick="openEditModal(
+                                    {{ dept.id }},
+                                    '{{ dept.name | replace("'", "\\'") }}',
+                                    '{{ dept.description | replace("'", "\\'") if dept.description else "" }}',
+                                    '{{ dept.manager_id or "" }}'
+                                )" class="btn btn-sm btn-secondary">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Department Modal -->
+    <div id="addDeptModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('addDeptModal').style.display='none'">&times;</span>
+            <h2>Add Department</h2>
+            <form method="POST" action="/admin/departments/add">
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Manager</label>
+                    <select name="manager_id">
+                        <option value="">No Manager</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Department</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Department Modal -->
+    <div id="editDeptModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('editDeptModal').style.display='none'">&times;</span>
+            <h2>Edit Department</h2>
+            <form id="editDeptForm" method="POST" action="">
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" id="edit_name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit_description" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Manager</label>
+                    <select id="edit_manager_id" name="manager_id">
+                        <option value="">No Manager</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, name, description, managerId) {
+            document.getElementById('editDeptForm').action = '/admin/departments/edit/' + id;
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_description').value = description;
+
+            var managerSelect = document.getElementById('edit_manager_id');
+            for (var i = 0; i < managerSelect.options.length; i++) {
+                managerSelect.options[i].selected = (managerSelect.options[i].value == managerId);
+            }
+
+            document.getElementById('editDeptModal').style.display = 'block';
+        }
+
+        window.onclick = function(event) {
+            document.querySelectorAll('.modal').forEach(function(modal) {
+                if (event.target == modal) modal.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFA Verification - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo">
+                <h1>Multi-Factor Authentication</h1>
+                <p class="subtitle">Enter the verification code</p>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="/verify-mfa">
+                <div class="form-group">
+                    <label for="code">6-Digit Code</label>
+                    <input type="text" id="code" name="code" maxlength="6" pattern="\d{6}" required autocomplete="one-time-code" placeholder="000000">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Verify</button>
+            </form>
+            
+            <div class="login-info">
+                <p>Code expires in 5 minutes.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="active"><a href="/employee/dashboard">Dashboard</a></li>
+                <li><a href="/employee/schedule">My Schedule</a></li>
+                <li><a href="/employee/leave">Leave Requests</a></li>
+                <li><a href="/employee/training">Training</a></li>
+                <li><a href="/employee/support">Support Tickets</a></li>
+                <li><a href="/employee/chat">ChatHub</a></li>
+                <li><a href="/employee/payslips">Payslips</a></li>
+                <li><a href="/employee/profile">My Profile</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Welcome, {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Employee Dashboard</h1>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Today's Schedule</h3>
+                    {% if schedule %}
+                        <p class="stat-value">{{ schedule.shift_start }} - {{ schedule.shift_end }}</p>
+                        <p class="stat-label">{{ schedule.position }}</p>
+                    {% else %}
+                        <p class="stat-value">No Shift</p>
+                        <p class="stat-label">Day Off</p>
+                    {% endif %}
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Pending Leave Requests</h3>
+                    <p class="stat-value">{{ pending_leaves }}</p>
+                    <p class="stat-label">Awaiting Approval</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Training Courses</h3>
+                    <p class="stat-value">{{ upcoming_training }}</p>
+                    <p class="stat-label">Assigned</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Support Tickets</h3>
+                    <p class="stat-value">{{ open_tickets }}</p>
+                    <p class="stat-label">Open</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Unread Messages</h3>
+                    <p class="stat-value">{{ unread_messages }}</p>
+                    <p class="stat-label">ChatHub</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Quick Actions</h2>
+                <div class="button-grid">
+                    <a href="/employee/leave" class="btn btn-primary">Request Leave</a>
+                    <a href="/employee/schedule" class="btn btn-primary">View Schedule</a>
+                    <a href="/employee/training" class="btn btn-primary">My Training</a>
+                    <a href="/employee/support" class="btn btn-primary">Create Ticket</a>
+                    <a href="/employee/chat" class="btn btn-primary">Open ChatHub</a>
+                    <a href="/employee/payslips" class="btn btn-primary">View Payslips</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

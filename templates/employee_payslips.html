@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslips - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .download-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #4f8ef7;
+            font-size: 13px;
+            text-decoration: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(79, 142, 247, 0.3);
+            transition: all 0.2s;
+        }
+        .download-link:hover {
+            background: rgba(79, 142, 247, 0.15);
+            border-color: #4f8ef7;
+        }
+        .no-file {
+            color: #555;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/employee/dashboard">Dashboard</a></li>
+                <li><a href="/employee/schedule">My Schedule</a></li>
+                <li><a href="/employee/leave">Leave Requests</a></li>
+                <li><a href="/employee/training">Training</a></li>
+                <li><a href="/employee/support">Support Tickets</a></li>
+                <li><a href="/employee/chat">ChatHub</a></li>
+                <li class="active"><a href="/employee/payslips">Payslips</a></li>
+                <li><a href="/employee/profile">My Profile</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Welcome, {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>My Payslips</h1>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Pay Period</th>
+                            <th>Gross Pay</th>
+                            <th>Deductions</th>
+                            <th>Net Pay</th>
+                            <th>Payment Date</th>
+                            <th>Status</th>
+                            <th>Document</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payslip in payslips %}
+                        <tr>
+                            <td>{{ payslip.pay_period }}</td>
+                            <td>${{ "%.2f"|format(payslip.gross_pay) }}</td>
+                            <td>${{ "%.2f"|format(payslip.deductions) }}</td>
+                            <td><strong>${{ "%.2f"|format(payslip.net_pay) }}</strong></td>
+                            <td>{{ payslip.payment_date }}</td>
+                            <td><span class="badge badge-{{ payslip.status }}">{{ payslip.status }}</span></td>
+                            <td>
+                                {% if payslip.file_name %}
+                                    <a href="/employee/download/payslip/{{ payslip.id }}" class="download-link">
+                                        ⬇ {{ payslip.file_name }}
+                                    </a>
+                                {% else %}
+                                    <span class="no-file">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not payslips %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; color:#666; padding: 30px;">
+                                No payslips available yet.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

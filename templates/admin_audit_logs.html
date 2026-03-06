@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .action-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .action-login       { background: rgba(76,175,80,0.15);  color: #4caf50; }
+        .action-logout      { background: rgba(158,158,158,0.15); color: #9e9e9e; }
+        .action-user        { background: rgba(33,150,243,0.15);  color: #42a5f5; }
+        .action-training    { background: rgba(156,39,176,0.15);  color: #ba68c8; }
+        .action-payslip     { background: rgba(255,152,0,0.15);   color: #ffa726; }
+        .action-ticket      { background: rgba(0,188,212,0.15);   color: #26c6da; }
+        .action-leave       { background: rgba(255,87,34,0.15);   color: #ff7043; }
+        .action-schedule    { background: rgba(100,181,246,0.15); color: #64b5f6; }
+        .action-department  { background: rgba(102,126,234,0.15); color: #7986cb; }
+        .action-other       { background: rgba(100,100,100,0.15); color: #aaa; }
+        .log-details {
+            color: #9e9e9e;
+            font-size: 12px;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .empty-logs {
+            text-align: center;
+            padding: 60px 20px;
+            color: #555;
+        }
+        .empty-logs .icon { font-size: 48px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li class="active"><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Audit Logs</h1>
+                <span style="color: #666; font-size: 14px;">Last 100 entries</span>
+            </header>
+
+            <div class="section">
+                {% if logs %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td style="white-space: nowrap; color: #9e9e9e; font-size: 13px;">
+                                {{ log.created_at }}
+                            </td>
+                            <td>{{ log.username or '—' }}</td>
+                            <td>
+                                {% set a = log.action %}
+                                {% if 'login' in a %}
+                                    <span class="action-badge action-login">{{ a }}</span>
+                                {% elif 'logout' in a %}
+                                    <span class="action-badge action-logout">{{ a }}</span>
+                                {% elif 'user' in a or 'mfa' in a or 'password' in a %}
+                                    <span class="action-badge action-user">{{ a }}</span>
+                                {% elif 'training' in a %}
+                                    <span class="action-badge action-training">{{ a }}</span>
+                                {% elif 'payslip' in a %}
+                                    <span class="action-badge action-payslip">{{ a }}</span>
+                                {% elif 'ticket' in a %}
+                                    <span class="action-badge action-ticket">{{ a }}</span>
+                                {% elif 'leave' in a %}
+                                    <span class="action-badge action-leave">{{ a }}</span>
+                                {% elif 'schedule' in a %}
+                                    <span class="action-badge action-schedule">{{ a }}</span>
+                                {% elif 'department' in a %}
+                                    <span class="action-badge action-department">{{ a }}</span>
+                                {% else %}
+                                    <span class="action-badge action-other">{{ a }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="log-details" title="{{ log.details or '' }}">
+                                {{ log.details or '—' }}
+                            </td>
+                            <td style="color: #666; font-size: 13px;">{{ log.ip_address or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-logs">
+                    <div class="icon">📋</div>
+                    <p>No audit log entries yet. Actions taken in the system will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

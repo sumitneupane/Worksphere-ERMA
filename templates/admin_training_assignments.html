@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Assignments - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li class="active"><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Training Assignments</h1>
+                <a href="/admin/training" class="btn btn-secondary">Back to Courses</a>
+            </header>
+            
+            <div class="section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Course</th>
+                            <th>Assigned Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Completion</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>{{ assignment.employee_name }}</td>
+                            <td>{{ assignment.department_name or 'N/A' }}</td>
+                            <td>{{ assignment.course_title }}</td>
+                            <td>{{ assignment.assigned_date }}</td>
+                            <td>{{ assignment.due_date or 'Not set' }}</td>
+                            <td><span class="badge badge-{{ assignment.status }}">{{ assignment.status }}</span></td>
+                            <td>{{ assignment.completion_date or '-' }}</td>
+                            <td>{{ assignment.score or '-' }}{% if assignment.score %}%{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

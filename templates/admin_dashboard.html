@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+                            
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="active"><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Admin Dashboard</h1>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Employees</h3>
+                    <p class="stat-value">{{ stats.total_users }}</p>
+                    <p class="stat-label">Active Users</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Departments</h3>
+                    <p class="stat-value">{{ stats.total_departments }}</p>
+                    <p class="stat-label">Total Departments</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Pending Leave</h3>
+                    <p class="stat-value">{{ stats.pending_leaves }}</p>
+                    <p class="stat-label">Awaiting Review</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Active Schedules</h3>
+                    <p class="stat-value">{{ stats.active_schedules }}</p>
+                    <p class="stat-label">Upcoming Shifts</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Open Tickets</h3>
+                    <p class="stat-value">{{ stats.open_tickets }}</p>
+                    <p class="stat-label">Support Requests</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Active Training</h3>
+                    <p class="stat-value">{{ stats.active_training }}</p>
+                    <p class="stat-label">Assignments</p>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="section">
+                    <h2>Recent Leave Requests</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Type</th>
+                                <th>Dates</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in recent_leaves %}
+                            <tr>
+                                <td>{{ leave.full_name }}</td>
+                                <td>{{ leave.leave_type }}</td>
+                                <td>{{ leave.start_date }} to {{ leave.end_date }}</td>
+                                <td><span class="badge badge-{{ leave.status }}">{{ leave.status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No recent requests</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="section">
+                    <h2>Recent Support Tickets</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Subject</th>
+                                <th>Employee</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in recent_tickets %}
+                            <tr>
+                                <td>#{{ ticket.id }}</td>
+                                <td>{{ ticket.subject }}</td>
+                                <td>{{ ticket.full_name }}</td>
+                                <td><span class="badge badge-{{ ticket.status }}">{{ ticket.status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No recent tickets</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

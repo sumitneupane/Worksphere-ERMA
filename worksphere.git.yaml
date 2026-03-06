@@ -1,0 +1,25 @@
+# 1. Initialise git (if not already done)
+git init
+
+# 2. Create a .gitignore to exclude junk files
+echo "__pycache__/
+*.pyc
+*.db
+*.sqlite3
+.env
+venv/
+instance/
+.DS_Store" > .gitignore
+
+# 3. Stage all files
+git add .
+
+# 4. First commit
+git commit -m "Initial commit - WorkSphere ERMA capstone project"
+
+# 5. Link to your GitHub repo (replace URL with yours)
+git remote add origin https://github.com/sumitneupane/Worksphere-ERMA
+
+# 6. Push
+git branch -M main
+git push -u origin main

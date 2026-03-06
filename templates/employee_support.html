@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Tickets - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/employee/dashboard">Dashboard</a></li>
+                <li><a href="/employee/schedule">My Schedule</a></li>
+                <li><a href="/employee/leave">Leave Requests</a></li>
+                <li><a href="/employee/training">Training</a></li>
+                <li class="active"><a href="/employee/support">Support Tickets</a></li>
+                <li><a href="/employee/chat">ChatHub</a></li>
+                <li><a href="/employee/payslips">Payslips</a></li>
+                <li><a href="/employee/profile">My Profile</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Welcome, {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Support Tickets</h1>
+                <button onclick="document.getElementById('newTicketModal').style.display='block'" class="btn btn-primary">New Ticket</button>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>#{{ ticket.id }}</td>
+                            <td>{{ ticket.subject }}</td>
+                            <td>{{ ticket.category }}</td>
+                            <td><span class="badge badge-{{ ticket.priority }}">{{ ticket.priority }}</span></td>
+                            <td><span class="badge badge-{{ ticket.status }}">{{ ticket.status }}</span></td>
+                            <td>{{ ticket.created_at }}</td>
+                            <td><a href="/employee/support/view/{{ ticket.id }}" class="btn btn-sm btn-secondary">View</a></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No support tickets found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <div id="newTicketModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('newTicketModal').style.display='none'">&times;</span>
+            <h2>Create Support Ticket</h2>
+            <form method="POST" action="/employee/support">
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Technical">Technical Issue</option>
+                        <option value="HR">HR Related</option>
+                        <option value="Payroll">Payroll</option>
+                        <option value="Schedule">Schedule</option>
+                        <option value="General">General Inquiry</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" required>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="6" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Create Ticket</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

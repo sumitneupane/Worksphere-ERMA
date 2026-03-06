@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/employee/dashboard">Dashboard</a></li>
+                <li><a href="/employee/schedule">My Schedule</a></li>
+                <li><a href="/employee/leave">Leave Requests</a></li>
+                <li><a href="/employee/training">Training</a></li>
+                <li><a href="/employee/support">Support Tickets</a></li>
+                <li><a href="/employee/chat">ChatHub</a></li>
+                <li><a href="/employee/payslips">Payslips</a></li>
+                <li class="active"><a href="/employee/profile">My Profile</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Welcome, {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>My Profile</h1>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="section">
+                <div class="profile-grid">
+                    <div class="profile-section">
+                        <h2>Personal Information</h2>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Full Name</label>
+                                <p>{{ user.full_name }}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Username</label>
+                                <p>{{ user.username }}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Email</label>
+                                <p>{{ user.email }}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Department</label>
+                                <p>{{ user.department_name or 'Not Assigned' }}</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Hire Date</label>
+                                <p>{{ user.hire_date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-section">
+                        <h2>Contact Information</h2>
+                        <form method="POST" action="/employee/profile">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <textarea id="address" name="address" rows="3">{{ user.address or '' }}</textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Update Information</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

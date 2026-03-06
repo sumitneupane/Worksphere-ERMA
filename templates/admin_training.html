@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Management - WorkSphere ERMA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .file-upload-area {
+            border: 2px dashed rgba(79, 142, 247, 0.4);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(79, 142, 247, 0.05);
+            position: relative;
+        }
+        .file-upload-area:hover {
+            border-color: #4f8ef7;
+            background: rgba(79, 142, 247, 0.1);
+        }
+        .file-upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .file-upload-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .file-upload-label {
+            color: #4f8ef7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .file-upload-hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .file-selected-name {
+            margin-top: 8px;
+            color: #a0c4ff;
+            font-size: 13px;
+            display: none;
+        }
+        .material-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(79, 142, 247, 0.12);
+            border: 1px solid rgba(79, 142, 247, 0.3);
+            color: #4f8ef7;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+        .material-badge:hover {
+            background: rgba(79, 142, 247, 0.22);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="WorkSphere Logo" class="logo-small">
+                <h2>WorkSphere</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/users">User Management</a></li>
+                <li><a href="/admin/departments">Departments</a></li>
+                <li><a href="/admin/schedules">Schedules</a></li>
+                <li><a href="/admin/leave-requests">Leave Requests</a></li>
+                <li class="active"><a href="/admin/training">Training</a></li>
+                <li><a href="/admin/support">Support Tickets</a></li>
+                <li><a href="/admin/payslips">Payslips</a></li>
+                <li><a href="/admin/reports">Reports</a></li>
+                <li><a href="/admin/audit-logs">Audit Logs</a></li>
+                <li><a href="/admin/settings">Settings</a></li>
+            </ul>
+            
+            <div class="user-info">
+                <p>Admin: {{ session.username }}</p>
+                <a href="/logout" class="btn btn-secondary btn-sm">Logout</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Training Management</h1>
+                <div>
+                    <button onclick="document.getElementById('addCourseModal').style.display='block'" class="btn btn-primary">New Course</button>
+                    <a href="/admin/training/assignments" class="btn btn-secondary">View Assignments</a>
+                </div>
+            </header>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="section">
+                <div class="training-grid">
+                    {% for course in courses %}
+                    <div class="training-card">
+                        <div class="training-header">
+                            <h3>{{ course.title }}</h3>
+                            <span class="badge badge-{{ course.status }}">{{ course.status }}</span>
+                        </div>
+                        <p class="training-description">{{ course.description }}</p>
+                        <div class="training-meta">
+                            <div class="meta-item">
+                                <label>Category:</label>
+                                <span>{{ course.category }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <label>Duration:</label>
+                                <span>{{ course.duration_hours }} hours</span>
+                            </div>
+                        </div>
+                        {% if course.material_filename %}
+                        <a href="/admin/download/training/{{ course.id }}" class="material-badge">
+                            📄 {{ course.material_filename }}
+                        </a>
+                        {% endif %}
+                        <div class="training-actions">
+                            <a href="/admin/training/assign/{{ course.id }}" class="btn btn-sm btn-primary">Assign to Employees</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add Course Modal -->
+    <div id="addCourseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('addCourseModal').style.display='none'">&times;</span>
+            <h2>Add Training Course</h2>
+            <form method="POST" action="/admin/training/add" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Course Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="duration_hours">Duration (hours)</label>
+                    <input type="number" id="duration_hours" name="duration_hours" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="Customer Service">Customer Service</option>
+                        <option value="Safety">Safety</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Management">Management</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Course Material <span style="color:#888; font-size:12px;">(optional — PDF, DOC, JPG, PNG)</span></label>
+                    <div class="file-upload-area" id="materialUploadArea">
+                        <input type="file" name="material_file" id="materialFileInput"
+                               accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.mp4,.mov,.avi,.mkv,.webm"
+                               onchange="showFileName('materialFileInput','materialFileName')">
+                        <span class="file-upload-icon">📚</span>
+                        <span class="file-upload-label">Click to upload course material</span>
+                        <p class="file-upload-hint">PDF, DOC, JPG, PNG or Video (MP4, MOV) up to 500MB</p>
+                        <p class="file-selected-name" id="materialFileName"></p>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Course</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showFileName(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if (input.files && input.files[0]) {
+                label.textContent = '✓ ' + input.files[0].name;
+                label.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
